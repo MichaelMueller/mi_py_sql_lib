@@ -11,8 +11,9 @@ class Database:
     def DBMS(self) -> "DBMS":
         pass
     
-    def schema(self) -> Schema:
+    async def schema(self) -> Schema:
         pass
     
     def name(self) -> str:
         pass
+    
