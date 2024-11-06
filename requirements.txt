@@ -1,2 +1,3 @@
 setuptools
 git+https://github.com/MichaelMueller/mi_py_test_lib.git
+aiofiles

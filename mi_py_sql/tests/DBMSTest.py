@@ -14,6 +14,7 @@ class DBMSTest(AbstractTest):
         # delete previous databases
         for name in await self._instance.database_names():
             self._instance.drop_database( name )
-        self._assert( len(self._instance.database_names()) == 0, "all databases have been dropped at test start" )
+        self._assert( len(await self._instance.database_names()) == 0, "All databases have been dropped at test start" )
         
-        # create user database
+        #print("worx")
+        
