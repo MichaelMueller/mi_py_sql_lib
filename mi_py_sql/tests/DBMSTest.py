@@ -1,8 +1,10 @@
-from mi_py_sql_lib.libs.mi_py_test_lib.AbstractTest import AbstractTest
-from mi_py_sql_lib.interfaces.DBMS import DBMS
+# pip
+from mi_py_test.AbstractTest import AbstractTest
+# local
+from ..interfaces.DBMS import DBMS
 
-class DBMSTest (AbstractTest):
-    
+
+class DBMSTest(AbstractTest):    
     def __init__(self, instance:DBMS) -> None:        
         super().__init__()
         
