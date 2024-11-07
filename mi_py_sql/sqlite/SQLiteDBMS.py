@@ -18,6 +18,7 @@ class SQLiteDBMS(DBMS):
         super().__init__()
         self._databases_directory = databases_directory
         self._sqlite_ext = sqlite_ext
+        self._databases:Dict[str, _SQLiteDatabase] = {}
                 
     # queries   
     # queries   
@@ -49,7 +50,9 @@ class SQLiteDBMS(DBMS):
         return os.path.exists( self.database_path(database_name) )
     
     async def database(self, database_name:str) -> Database:
-        return _SQLiteDatabase(self, database_name)
+        if not database_name in self._databases:
+            self._databases[database_name] = _SQLiteDatabase(self, database_name)
+        return self._databases[database_name]
         
     def database_path( self, database_name:str ) -> "str":
         return f'{self._databases_directory}/{database_name}{self._sqlite_ext}'
@@ -87,13 +90,14 @@ class _SQLiteCreateDatabaseQuery(CreateDatabaseQuery):
         db_path = self._dbms.database_path( self._database_name )
         with open(db_path, 'w') as file:
             pass
-        return Database()
+        return await self._dbms.database(self._database_name)
     
 class _SQLiteDatabase(Database):
     def __init__(self, dbms: SQLiteDBMS, database_name:str ) -> None:
         super().__init__()
         self._dbms = dbms
         self._database_name = database_name
+        self._connection:aiosqlite.Connection = None
     
     def DBMS(self) -> "SQLiteDBMS":
         return self._dbms
@@ -125,7 +129,6 @@ class _SQLiteSchema(Schema):
     def __init__(self, db: _SQLiteDatabase ) -> None:
         super().__init__()
         self._db = db        
-        self._connection:aiosqlite.Connection = None
         
     # parent
     def database(self) -> "_SQLiteDatabase":
@@ -133,7 +136,7 @@ class _SQLiteSchema(Schema):
     
     # queries    
     def create_table_query(self, table_name:str) -> CreateTableQuery: 
-        raise NotImplementedError()             
+        return _SQLiteCreateTableQuery(self)             
     
     # getter
     def table_names(self) -> list[str]:
@@ -156,9 +159,10 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         
     async def exec(self) -> None:
         sqlite_db = self.schema().database()
-        sqlite_db.execute_query( self.to_sql() )
+        sql, params = self.to_sql()
+        await sqlite_db.execute_query( sql, params )
     
-    def to_sql(self) -> str:
+    def to_sql(self) -> Tuple[str, Iterable[Any]]:
         create_table_sql = f'CREATE TABLE'
         if self._if_not_exists:
             create_table_sql += f' IF NOT EXISTS'
@@ -168,7 +172,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         # inner statements
         inner_sql = []
         params = []
-        foreign_keys:Dict[str, Column] = []
+        foreign_keys:Dict[str, Column] = {}
         for col_name, col_props in self._cols.items():
             sql = f'{col_name} {col_props["type"]}'
             if col_props["primary_key"]:
@@ -191,6 +195,8 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         create_table_sql += ",\n".join( inner_sql )    
                 
         create_table_sql += " );"
+        
+        return (create_table_sql, params)
     
     def schema(self) -> "_SQLiteSchema":
         return self._schema
@@ -200,7 +206,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
                 default_value:Optional[int]=None, 
                 primary_key:bool=False, 
                 unique:Optional[bool]=False, 
-                nullable:Optional[bool]=True, 
+                nullable:Optional[bool]=False, 
                 referenced_col:Optional[Column]=None) -> "CreateTableQuery":
         
         args = locals()
@@ -208,6 +214,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         del args["name"]
         col_props = args
         col_props["type"] = "INTEGER"
+        self._cols[name] = col_props
         return self
     
     def float_col(self, 
@@ -215,7 +222,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
                   default_value:Union[float, None]=None, 
                   primary_key:bool=False, 
                   unique:Optional[bool]=False, 
-                  nullable:Optional[bool]=True, 
+                  nullable:Optional[bool]=False, 
                   referenced_col:Optional[Column]=None) -> "CreateTableQuery":
         
         args = locals()
@@ -223,6 +230,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         del args["name"]
         col_props = args
         col_props["type"] = "FLOAT"
+        self._cols[name] = col_props
         return self
         
     def string_col(self, 
@@ -231,7 +239,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
                    default_value:Union[str, None]=None, 
                    primary_key:bool=False, 
                    unique:Optional[bool]=False, 
-                   nullable:Optional[bool]=True, 
+                   nullable:Optional[bool]=False, 
                    referenced_col:Optional[Column]=None) -> "CreateTableQuery":
         
         args = locals()
@@ -240,6 +248,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         del args["max_length"]
         col_props = args
         col_props["type"] = "TEXT"
+        self._cols[name] = col_props
         return self
     
     def int_primary_key_col(self, 

@@ -22,7 +22,7 @@ class CreateTableQuery(SqlQuery):
                 default_value:Optional[int]=None, 
                 primary_key:bool=False, 
                 unique:Optional[bool]=False, 
-                nullable:Optional[bool]=True, 
+                nullable:Optional[bool]=False, 
                 referenced_col:Optional[Column]=None) -> "CreateTableQuery":
         
         raise NotImplementedError()
@@ -32,7 +32,7 @@ class CreateTableQuery(SqlQuery):
                   default_value:Union[float, None]=None, 
                   primary_key:bool=False, 
                   unique:Optional[bool]=False, 
-                  nullable:Optional[bool]=True, 
+                  nullable:Optional[bool]=False, 
                   referenced_col:Optional[Column]=None) -> "CreateTableQuery":
         
         raise NotImplementedError()
@@ -43,7 +43,7 @@ class CreateTableQuery(SqlQuery):
                    default_value:Union[str, None]=None, 
                    primary_key:bool=False, 
                    unique:Optional[bool]=False, 
-                   nullable:Optional[bool]=True, 
+                   nullable:Optional[bool]=False, 
                    referenced_col:Optional[Column]=None) -> "CreateTableQuery":
         
         raise NotImplementedError()

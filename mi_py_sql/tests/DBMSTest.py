@@ -2,7 +2,9 @@
 from mi_py_test.AbstractTest import AbstractTest
 # local
 from ..interfaces.DBMS import DBMS
+from ..interfaces.Database import Database
 from ..interfaces.Table import Table
+from ..interfaces.CreateTableQuery import CreateTableQuery
 
 
 class DBMSTest(AbstractTest):    
@@ -18,7 +20,14 @@ class DBMSTest(AbstractTest):
     
     async def _exec(self):    
         # create test database
-        await self._instance.create_database_query( self._test_db_name ).exec()    
+        db:Database = await self._instance.create_database_query( self._test_db_name ).exec()    
+        schema = await db.schema()
+        await schema.create_table_query("users") \
+            .int_primary_key_col("id", auto_increment=True) \
+            .string_col("name", max_length=1275, unique=True, nullable=False) \
+            .string_col("hp", max_length=1275, unique=False, nullable=False) \
+            .int_col("is_admin", unique=False, nullable=False, default_value=0) \
+            .exec()
         
         # create user table
         
