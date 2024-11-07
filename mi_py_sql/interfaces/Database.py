@@ -19,3 +19,6 @@ class Database:
     def name(self) -> str:
         raise NotImplementedError()
     
+    # other
+    async def close(self) -> None:
+        raise NotImplementedError()

@@ -18,11 +18,12 @@ class MiPySqlTestSuite(AbstractTest):
     def __init__(self) -> None:        
         super().__init__()        
         self._test_db_name = "6c4ad2db-cb84-40d7-abf7-a3aafab11e82" # for the name a uuid is used to not collide with other databases        
+        self._instance:DBMS = None
         
     def dependent_tests(self) -> list[Test]:
-        sqlite_dbms = SQLiteDBMS( tempfile.mkdtemp() )
+        self._instance = SQLiteDBMS( tempfile.mkdtemp() )
         
-        return [ DBMSTest( sqlite_dbms ) ]
+        return [ DBMSTest( self._instance ) ]
     
     async def _exec(self):       
         # testing sqlite.exec()

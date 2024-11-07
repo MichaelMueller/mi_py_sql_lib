@@ -20,7 +20,11 @@ class SQLiteDBMS(DBMS):
         self._sqlite_ext = sqlite_ext
         self._databases:Dict[str, _SQLiteDatabase] = {}
                 
-    # queries   
+    # other
+    async def disconnect(self) -> None:
+        for database in self._databases.values():
+            await database.close()
+    
     # queries   
     def drop_database_query(self, database_name:str) -> DropDatabaseQuery:
         return _SQLiteDropDatabaseQuery( self, database_name )
@@ -124,7 +128,7 @@ class _SQLiteDatabase(Database):
         if self._connection:
             await self._connection.close()
             self._connection = None   
-    
+                    
 class _SQLiteSchema(Schema):
     def __init__(self, db: _SQLiteDatabase ) -> None:
         super().__init__()
@@ -136,7 +140,7 @@ class _SQLiteSchema(Schema):
     
     # queries    
     def create_table_query(self, table_name:str) -> CreateTableQuery: 
-        return _SQLiteCreateTableQuery(self)             
+        return _SQLiteCreateTableQuery(self, table_name)             
     
     # getter
     def table_names(self) -> list[str]:
@@ -150,9 +154,10 @@ class _SQLiteSchema(Schema):
      
     
 class _SQLiteCreateTableQuery(CreateTableQuery):
-    def __init__(self, schema: _SQLiteSchema ) -> None:
+    def __init__(self, schema: _SQLiteSchema, table_name:str ) -> None:
         super().__init__()
         self._schema = schema
+        self._table_name = table_name
         self._if_not_exists = False
         # per col cached params
         self._cols:Dict[str, dict] = {}
@@ -163,7 +168,7 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
         await sqlite_db.execute_query( sql, params )
     
     def to_sql(self) -> Tuple[str, Iterable[Any]]:
-        create_table_sql = f'CREATE TABLE'
+        create_table_sql = f'CREATE TABLE {self._table_name}'
         if self._if_not_exists:
             create_table_sql += f' IF NOT EXISTS'
         
@@ -182,8 +187,11 @@ class _SQLiteCreateTableQuery(CreateTableQuery):
             if col_props["nullable"] == False:
                 sql += " NOT NULL"
             if col_props["default_value"] != None:
-                sql += " DEFAULT ?"
-                params.append( col_props["default_value"] )
+                sql += f' DEFAULT'
+                if type( col_props["default_value"] ) == str:
+                    sql += f' "{col_props["default_value"]}"'
+                else:                    
+                    sql += f' {col_props["default_value"]}'
             if col_props["referenced_col"]:
                 foreign_keys[col_name] = col_props["referenced_col"]
             inner_sql.append( sql )

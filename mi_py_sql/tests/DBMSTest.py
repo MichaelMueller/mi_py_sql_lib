@@ -17,6 +17,7 @@ class DBMSTest(AbstractTest):
         # tidy up is called as part of the testing but twice (before _exec and after _exec)
         self._print(f'Removing test database if it exists')
         await self._instance.drop_database_query( self._test_db_name ).if_exists().exec()
+        await self._instance.disconnect()
     
     async def _exec(self):    
         # create test database

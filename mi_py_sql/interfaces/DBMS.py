@@ -22,3 +22,6 @@ class DBMS:
     async def database(self, name:str) -> Database:
         raise NotImplementedError()
     
+    # other
+    async def disconnect(self) -> None:
+        raise NotImplementedError()
