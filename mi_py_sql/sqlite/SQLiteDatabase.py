@@ -28,17 +28,24 @@ class SQLiteDatabase(Database):
         return SQLiteSchema(self)
     # implementation specific
 
-    async def connect(self):
-        if self._connection is None:
-            db_path = self._dbms.database_path( self._database_name )
-            self._connection = await aiosqlite.connect( db_path )
-
-    async def execute_query(self, query, params:Optional[Iterable[Any]]=None):
-        await self.connect()  # Make sure the _connection is available
+    async def execute_query(self, query, params:Optional[Iterable[Any]]=None) -> aiosqlite.Cursor:
+        await self._assert_connected()  # Make sure the _connection is available
+        
         async with self._connection.execute(query, params or ()):
             await self._connection.commit()
 
-    async def close(self):
+    async def fetch_all(self, query, params:Optional[Iterable[Any]]=None) -> Any:
+        await self._assert_connected()  # Make sure the _connection is available
+        
+        async with self._connection.execute(query, params or ()) as cursor:
+            return await cursor.fetchall()
+            
+    async def close(self) -> None:
         if self._connection:
             await self._connection.close()
             self._connection = None   
+            
+    async def _assert_connected(self) -> None:
+        if self._connection is None:
+            db_path = self._dbms.database_path( self._database_name )
+            self._connection = await aiosqlite.connect( db_path )

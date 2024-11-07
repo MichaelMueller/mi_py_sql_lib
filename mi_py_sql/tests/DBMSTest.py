@@ -23,12 +23,16 @@ class DBMSTest(AbstractTest):
         # create test database
         db:Database = await self._instance.create_database_query( self._test_db_name ).exec()    
         schema = await db.schema()
-        await schema.create_table_query("users") \
+        
+        # create user database
+        await schema.create_table_query("users_wrong_name") \
             .int_primary_key_col("id", auto_increment=True) \
             .string_col("name", max_length=1275, unique=True, nullable=False) \
             .string_col("hp", max_length=1275, unique=False, nullable=False) \
             .int_col("is_admin", unique=False, nullable=False, default_value=0) \
             .exec()
+        
+        self._assert( await schema.table_exists("users_wrong_name"), "table 'users_wrong_name' exists")
         
         # create user table
         

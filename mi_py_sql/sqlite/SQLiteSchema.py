@@ -1,5 +1,5 @@
 # built-in
-from typing import TYPE_CHECKING, Iterable, Optional, Any
+from typing import TYPE_CHECKING, Dict, Optional, Any
 # pip
 # local
 from ..interfaces.CreateTableQuery import CreateTableQuery
@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 class SQLiteSchema(Schema):
     def __init__(self, db: "SQLiteDatabase" ) -> None:
         super().__init__()
-        self._db = db        
+        self._db = db  
+        self._tables:Dict[str, Table] = {}
         
     # parent
     def database(self) -> "SQLiteDatabase":
@@ -24,11 +25,14 @@ class SQLiteSchema(Schema):
         return SQLiteCreateTableQuery(self, table_name)             
     
     # getter
-    def table_names(self) -> list[str]:
-        raise NotImplementedError()
-    
-    def table_exists(self, table_name:str) -> bool:
+    async def table_names(self) -> list[str]:
+        tables = await self._db.fetch_all( "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';" )
+        table_names = [table[0] for table in tables]
+        return table_names
+        
+    async def table_exists(self, table_name:str) -> bool:
+        return table_name in await self.table_names()
+        
+    async def table(self, name:str) -> Table:
         raise NotImplementedError()
         
-    def tables(self) -> list[Table]:
-        raise NotImplementedError()

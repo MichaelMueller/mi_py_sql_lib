@@ -6,17 +6,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .Schema import Schema
     
-from .SqlQuery import SqlQuery
+from .DDLQuery import DDLQuery
 from .Column import Column
 
-class CreateTableQuery(SqlQuery):
+class CreateTableQuery(DDLQuery):
      
     async def exec(self) -> None:
         raise NotImplementedError()
-    
-    def schema(self) -> "Schema":
-        raise NotImplementedError()
-        
+            
     def int_col(self, 
                 name:str, 
                 default_value:Optional[int]=None, 
