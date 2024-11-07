@@ -8,12 +8,14 @@ from .Schema import Schema
 
 class Database:
     
+    # parent
     def DBMS(self) -> "DBMS":
-        pass
+        raise NotImplementedError()
     
+    # getter
     async def schema(self) -> Schema:
-        pass
+        raise NotImplementedError()
     
     def name(self) -> str:
-        pass
+        raise NotImplementedError()
     

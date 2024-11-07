@@ -1,9 +1,6 @@
 from typing import Tuple, Any, Iterable
-
-class Query:
-    
-    async def exec(self) ->  Any:
-        raise NotImplementedError()
-    
+from .Query import Query
+class SqlQuery(Query):
+  
     def to_sql(self) -> Tuple[str, Iterable[Any]]:
         raise NotImplementedError()

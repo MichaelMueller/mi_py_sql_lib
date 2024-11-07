@@ -20,6 +20,8 @@ class DBMSTest(AbstractTest):
         # create test database
         await self._instance.create_database_query( self._test_db_name ).exec()    
         
+        # create user table
+        
         # make sure the test database does not exist before start testing
         
         # self._assert( await self._instance.drop_database( test_db_name ) in [True, False], "Test database has been dropped before test start" )
