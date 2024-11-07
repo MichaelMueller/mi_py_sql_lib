@@ -1,16 +1,12 @@
 # built-in
-import asyncio
-import argparse
-import tempfile
-import os
+import asyncio, sys
 
 # local
-from mi_py_sql.tests.DBMSTest import DBMSTest
-from mi_py_sql.sqlite.SQLiteDBMS import SQLiteDBMS
+from mi_py_sql.tests.MiPySqlTestSuite import MiPySqlTestSuite
 
-async def main():    
-    
-    await DBMSTest( SQLiteDBMS( tempfile.mkdtemp() ) ).exec()    
+async def main() -> int:        
+    return await MiPySqlTestSuite().exec()    
         
 if __name__ == "__main__":
-    asyncio.run(main())
+    tests_ok = asyncio.run(main())
+    sys.exit( 0 if tests_ok else 1 )
