@@ -4,7 +4,7 @@ import asyncio, sys
 # local
 from mi_py_sql.tests.MiPySqlTestSuite import MiPySqlTestSuite
 
-async def main() -> int:        
+async def main() -> bool:        
     return await MiPySqlTestSuite().exec()    
         
 if __name__ == "__main__":
