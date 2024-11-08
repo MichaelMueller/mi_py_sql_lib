@@ -1,29 +1,18 @@
 # forward declerations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from .Database import Database
-    
-# other imports
-from .Table import Table
-from .CreateTableQuery import CreateTableQuery
-
-class Schema:
-    
-    # parent
-    def database(self) -> "Database": 
-        raise NotImplementedError()             
-    
-    # queries    
-    def create_table_query(self, table_name:str) -> CreateTableQuery: 
-        raise NotImplementedError()             
-    
-    # getter
-    async def table_names(self) -> list[str]:
-        raise NotImplementedError()
-    
-    async def table_exists(self, table_name:str) -> bool:
-        raise NotImplementedError()
+from typing import TypedDict, Dict, Union
         
-    async def table(self, name:str) -> Table:
-        raise NotImplementedError()
+class Column(TypedDict):
+    type_:Union[str, int, float, bytes]
+    is_primary_key:bool
+    is_unique:bool
+    is_nullable:bool
+    is_auto_increment:bool
+    max_length:Union[None, int]
+    default_value:Union[int, float, str, bytes, None]
+    referenced_column:Union[None, "Column"]
     
+class Table(TypedDict):
+    columns:Dict[str, Column]
+    
+class Schema(TypedDict):
+    tables:Dict[str, Table]

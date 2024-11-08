@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     
 # other imports
 from .Schema import Schema
+from .CreateTable import CreateTable
 
 class Database:
     
@@ -12,13 +13,8 @@ class Database:
     def DBMS(self) -> "DBMS":
         raise NotImplementedError()
     
-    # getter
-    async def schema(self) -> Schema:
+    def schema(self) -> Schema: # will load the complete schema of this DB as is
         raise NotImplementedError()
     
     def name(self) -> str:
-        raise NotImplementedError()
-    
-    # other
-    async def close(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError()      

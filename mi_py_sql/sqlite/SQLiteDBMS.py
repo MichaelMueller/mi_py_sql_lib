@@ -1,17 +1,14 @@
 # built-in
-from typing import Dict
+from typing import Dict, Optional, Union
 import os
 # pip
 import aiosqlite
+import aiofiles.os
 # local
 from ..interfaces.DBMS import DBMS
 from ..interfaces.Database import Database
-from ..interfaces.CreateDatabaseQuery import CreateDatabaseQuery
-from ..interfaces.DropDatabaseQuery import DropDatabaseQuery
-
+# local same hierarchy
 from .SQLiteDatabase import SQLiteDatabase
-from .SQLiteDropDatabaseQuery import SQLiteDropDatabaseQuery
-from .SQLiteCreateDatabaseQuery import SQLiteCreateDatabaseQuery
 
 class SQLiteDBMS(DBMS):    
     def __init__(self, databases_directory:str, sqlite_ext:str=".sqlite3") -> None:        
@@ -20,44 +17,50 @@ class SQLiteDBMS(DBMS):
         self._sqlite_ext = sqlite_ext
         self._databases:Dict[str, SQLiteDatabase] = {}
                 
-    # other
-    async def disconnect(self) -> None:
-        for database in self._databases.values():
-            await database.close()
+    async def database(self, database_name:str, create:Optional[bool]=False) -> Union[None, Database]: 
+        db_path = self.database_path( database_name )        
+        if database_name not in self._databases:
+            # check if db could be loaded or create an empty file if create is True
+            exists_on_disk = await aiofiles.os.path.exists(db_path)
+            if not exists_on_disk and create:                
+                async with aiofiles.open(db_path, 'w'):
+                    exists_on_disk = True
+            # finally add it to my set of opened databases
+            if exists_on_disk:            
+                self._databases[database_name] = SQLiteDatabase(self, database_name)
+        return self._databases[database_name] if database_name in self._databases else None
     
-    # queries   
-    def drop_database_query(self, database_name:str) -> DropDatabaseQuery:
-        return SQLiteDropDatabaseQuery( self, database_name )
-    
-    def create_database_query(self, database_name:str) -> CreateDatabaseQuery: 
-        return SQLiteCreateDatabaseQuery( self, database_name )
-    
-    async def drop_database(self, database_name:str) -> "DBMS":
-        os.remove( database_name )
-        return self
-    
-    # getter
     async def database_names(self) -> list[str]:
         target_extension = self._sqlite_ext.lower()
         filenames = []
-
-        for file in os.listdir(self._databases_directory):
+        for file in await aiofiles.os.listdir(self._databases_directory):
             # Check if the file has the target extension (case insensitive)
-            if os.path.isfile( os.path.join( self._databases_directory, file ) ) and file.lower().endswith( target_extension ):
-                # Get the filename without extension
+            if file.lower().endswith( target_extension ):                
                 filename_without_extension = os.path.splitext(file)[0]
                 filenames.append(filename_without_extension)
-
         return filenames
     
-    async def database_exists(self, database_name:str) -> bool:
-        return os.path.exists( self.database_path(database_name) )
-    
-    async def database(self, database_name:str) -> Database:
-        if not database_name in self._databases:
-            self._databases[database_name] = SQLiteDatabase(self, database_name)
-        return self._databases[database_name]
+    async def drop_database(self, database_name:str) -> "SQLiteDBMS":
+        db_path = self.database_path( database_name )
         
+        loaded = database_name in self._databases
+        exists = False
+        if loaded:
+            self._databases[database_name].close()
+            del self._databases[database_name]
+        else:            
+            exists = await aiofiles.os.path.exists( db_path )
+            
+        if loaded or exists:
+            await aiofiles.os.remove( db_path )
+            
+        return self
+    
+    async def close_all(self) -> None:
+        for database in self._databases.values():
+            await database.close()
+    
+    # implementation specific        
     def database_path( self, database_name:str ) -> "str":
         return f'{self._databases_directory}/{database_name}{self._sqlite_ext}'
     

@@ -4,7 +4,7 @@ from mi_py_test.AbstractTest import AbstractTest
 from ..interfaces.DBMS import DBMS
 from ..interfaces.Database import Database
 from ..interfaces.Table import Table
-from ..interfaces.CreateTableQuery import CreateTableQuery
+from ..interfaces.CreateTable import CreateTableQuery
 
 
 class DBMSTest(AbstractTest):    
@@ -16,12 +16,12 @@ class DBMSTest(AbstractTest):
     async def _tidy_up_if_needed(self) -> None:
         # tidy up is called as part of the testing but twice (before _exec and after _exec)
         self._print(f'Removing test database if it exists')
-        await self._instance.drop_database_query( self._test_db_name ).if_exists().exec()
+        await self._instance.drop_database( self._test_db_name ).if_exists().exec()
         await self._instance.disconnect()
     
     async def _exec(self):    
         # create test database
-        db:Database = await self._instance.create_database_query( self._test_db_name ).exec()    
+        db:Database = await self._instance.create_database( self._test_db_name ).exec()    
         schema = await db.schema()
         
         # create user database

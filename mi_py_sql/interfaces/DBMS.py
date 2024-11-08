@@ -1,27 +1,28 @@
+from typing import Optional, Union
 from .Database import Database
-from .CreateDatabaseQuery import CreateDatabaseQuery
-from .DropDatabaseQuery import DropDatabaseQuery
 from .Database import Database
 
 class DBMS:
-    
-    # queries   
-    def drop_database_query(self, database_name:str) -> DropDatabaseQuery:
+            
+    # database managment
+    async def database(self, database_name:str, create:Optional[bool]=False) -> Union[None, Database]: 
+        """ 
+        will try to load and select to the database indicated by "database_name"
+        if it not exists None will be created if "create" is False, otherwise an empty database will be created
+        """
         raise NotImplementedError()
     
-    def create_database_query(self, database_name:str) -> CreateDatabaseQuery: 
+    async def database_names(self) -> list[str]:
+        """ will load all existing database names """
+        raise NotImplementedError()
+        
+    async def drop_database(self, database_name:str) -> "DBMS": 
+        """ 
+        closes the database if it was opened, then drops it completely
+        will do nothing if the database does not exist
+        """
         raise NotImplementedError()  
     
-    # getter
-    async def database_names(self) -> list[str]:
-        raise NotImplementedError()
-    
-    async def database_exists(self, name:str) -> bool:
-        raise NotImplementedError()
-    
-    async def database(self, name:str) -> Database:
-        raise NotImplementedError()
-    
-    # other
-    async def disconnect(self) -> None:
+    async def close_all(self) -> None: 
+        """ will try to load and select to the database, returns none if not exists """
         raise NotImplementedError()
