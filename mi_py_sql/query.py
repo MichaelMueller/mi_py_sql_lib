@@ -18,5 +18,3 @@ class Query:
     def to_sql( self ) -> Tuple[str, Iterable[Any]]:
         raise NotImplementedError()
     
-    def args( self ) -> Iterable[Any]:
-        raise NotImplementedError()

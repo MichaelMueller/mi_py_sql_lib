@@ -23,5 +23,5 @@ class InsertTest(AbstractTest):
         create_table = db.create_table("users") \
             .int_auto_increment_pk( "id" ) \
             .string( "name", 256 ).unique()
-                
+        await create_table.exec()
         await db.insert_into("users").columns("name").values("mueller").exec()

@@ -12,21 +12,24 @@ class Insert(TableQuery):
     def __init__(self, database:"Database", name:str) -> None:
         super().__init__(database, name)     
         
-        self._columns:List[str] = None   
-        self._values:List[Any] = None   
+        self._columns:List[str] = None 
+        self._values:List[Any] = None
         
     def columns( self, *columns:str ) -> "Insert":  
         self._columns = list(columns)
         return self
     
     def values( self, *values:Any ) -> "Insert":  
-        self._columns = list(values)
+        self._values = list(values)
         return self
         
     def to_sql( self ) -> Tuple[str, Iterable[Any]]:
-        sql =  'INSERT INTO table_name ('
-        sql += ', ".join(self._columns)'
+        placeholders = ["?"] * len(self._values)
+        
+        sql =  'INSERT INTO '+self.name()+' ('
+        sql += ', '.join(self._columns)
         sql += ') VALUES ('
-        sql += ["?"] * len(self._values) + ';'
+        sql +=  ', '.join(placeholders) + ');'
+        
         return sql, self._values
         
