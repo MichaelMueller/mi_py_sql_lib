@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING
     
 # other imports
 if TYPE_CHECKING:
-    from mi_py_sql import CreateTable
-    from mi_py_sql import RenameTable
+    from mi_py_sql.create_table import CreateTable
+    from mi_py_sql.rename_table import RenameTable
+    from mi_py_sql.drop_table import DropTable
 
 class Database:    
     
@@ -15,6 +16,9 @@ class Database:
         raise NotImplementedError()    
     
     def rename_table(self, name:str) -> "RenameTable":
+        raise NotImplementedError()    
+    
+    def drop_table(self, name:str) -> "DropTable":
         raise NotImplementedError()    
     
     

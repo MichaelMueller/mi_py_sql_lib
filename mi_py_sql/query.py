@@ -5,8 +5,12 @@ if TYPE_CHECKING:
 
 class Query:
     
+    def __init__(self, database:"Database") -> None:
+        super().__init__()
+        self._database = database
+        
     def database(self) -> "Database":
-        raise NotImplementedError()    
+        return self._database 
         
     async def exec( self ) -> Any:
         raise NotImplementedError()    

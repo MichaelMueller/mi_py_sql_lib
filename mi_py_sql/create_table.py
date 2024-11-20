@@ -1,26 +1,27 @@
 # built-in imports
-from typing import Any, Union, Optional, TYPE_CHECKING
+from typing import Any, Union, Optional, TYPE_CHECKING, Iterable
 import inspect
 # local imports
 if TYPE_CHECKING:
     from mi_py_sql import Database
-from mi_py_sql import Query, Database
+from mi_py_sql import Query, TableQuery, Database
 
-class CreateTable(Query):
+class CreateTable(TableQuery):
     """ fluent interface for creating a table """
     
     def __init__(self, database:"Database", name:str) -> None:
-        super().__init__()
-        self._database = database
-        self._name = name
+        super().__init__(database, name)
         
         self._if_not_exists = None        
         self._columns = {}
         self._curr_name = None
         
-    def database(self) -> "Database":
-        return self._database
-                     
+    async def exec( self ) -> Any:
+        raise NotImplementedError()    
+    
+    def to_sql( self, args:Iterable[Any] ) -> str:
+        raise NotImplementedError()
+                         
     def int_auto_increment_pk( self, name:str ) -> "CreateTable":
         self._curr_name = name
         self._columns[name] = { "type": int, "auto_increment": True, "primary_key": True }
