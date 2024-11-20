@@ -1,4 +1,4 @@
-from typing import Any, Iterable, TYPE_CHECKING
+from typing import Any, Iterable, TYPE_CHECKING, Tuple
 
 # local
 if TYPE_CHECKING:
@@ -14,9 +14,5 @@ class SqliteDropTable(DropTable):
     def database(self) -> "SqliteDatabase":
         return super().database()
     
-    async def exec( self, args:Iterable[Any]=[] ) -> "SqliteDatabase":
-        await super().exec( args )
-        return self.database()
-
-    def to_sql(self) -> str:
-        return f'DROP TABLE{" IF EXISTS" if self._if_exists else ""} {self.name()};'
+    def to_sql( self ) -> Tuple[str, Iterable[Any]]:
+        return f'DROP TABLE{" IF EXISTS" if self._if_exists else ""} {self.name()};', []

@@ -31,11 +31,12 @@ class SqliteDatabase(Database):
     def drop_table(self, name:str) -> SqliteDropTable:
         return SqliteDropTable(self, name) 
     
-    async def exec( self, q:Query, args:Iterable[Any] ) -> Any:
+    async def exec( self, q:"Query" ) -> Any:
+        sql, args = q.to_sql()
         if isinstance( q, Select ):
-            return await self.execute( q.to_sql(), args )
+            return await self.execute( sql, args )
         else:
-            return await self.execute_write( q.to_sql(), args )
+            return await self.execute_write( sql, args )
     
     async def execute(self, query: str, args:Iterable[Any]):
         """Execute a query asynchronously."""

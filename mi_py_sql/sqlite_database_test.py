@@ -21,7 +21,7 @@ class SqliteDatabaseTest(AbstractTest):
         
         lib_name_key = "lib_name"
         lib_name = "mi_py_sql"
-        await db.execute_write("CREATE TABLE test_config (name TEXT PRIMARY KEY, value TEXT)")
+        await db.execute_write("CREATE TABLE test_config (name TEXT PRIMARY KEY, value TEXT)", [])
         await db.execute_write("INSERT INTO test_config (name, value) VALUES (?, ?)", (lib_name_key, lib_name))
         
         res = await db.execute( "select value FROM test_config WHERE name = ?", (lib_name_key,) )

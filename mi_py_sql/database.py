@@ -22,5 +22,5 @@ class Database:
     def drop_table(self, name:str) -> "DropTable":
         raise NotImplementedError()    
     
-    async def exec( self, q:Query, args:Iterable[Any] ) -> Any:
+    async def exec( self, q:"Query" ) -> Any:
         raise NotImplementedError()    

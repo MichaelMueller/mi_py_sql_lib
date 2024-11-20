@@ -1,5 +1,5 @@
 # built-in imports
-from typing import Any, List, Optional, TYPE_CHECKING, Iterable
+from typing import Any, List, TYPE_CHECKING, Iterable, Tuple
 import inspect
 # local imports
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ class Insert(TableQuery):
         super().__init__(database, name)     
         
         self._columns:List[str] = None   
-        self._values:List[str] = None   
+        self._values:List[Any] = None   
         
     def columns( self, *columns:str ) -> "Insert":  
         self._columns = list(columns)
@@ -22,3 +22,11 @@ class Insert(TableQuery):
     def values( self, *values:Any ) -> "Insert":  
         self._columns = list(values)
         return self
+        
+    def to_sql( self ) -> Tuple[str, Iterable[Any]]:
+        sql =  'INSERT INTO table_name ('
+        sql += ', ".join(self._columns)'
+        sql += ') VALUES ('
+        sql += ["?"] * len(self._values) + ';'
+        return sql, self._values
+        

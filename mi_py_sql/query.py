@@ -12,9 +12,11 @@ class Query:
     def database(self) -> "Database":
         return self._database 
         
-    async def exec( self, args:Iterable[Any] ) -> Any:
-        return await self.database().exec( self, args )
+    async def exec( self ) -> Any:
+        return await self.database().exec( self )
     
-    def to_sql( self ) -> str:
+    def to_sql( self ) -> Tuple[str, Iterable[Any]]:
         raise NotImplementedError()
     
+    def args( self ) -> Iterable[Any]:
+        raise NotImplementedError()

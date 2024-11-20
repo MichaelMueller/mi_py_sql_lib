@@ -27,7 +27,7 @@ class SqliteCreateTableTest(AbstractTest):
             .blob("image", 65000)
         
         target_sql = "CREATE TABLE users (id INTEGER AUTO INCREMENT PRIMARY KEY, name TEXT UNIQUE, age REAL DEFAULT 25.0, image BLOB);".lower().replace(" ", "")
-        sql = create_table.to_sql()
+        sql, _ = create_table.to_sql()
         self._print( sql )
         
         self._assert( sql.lower().replace(" ", "").startswith( target_sql ), "test table users could be created" )
@@ -35,5 +35,5 @@ class SqliteCreateTableTest(AbstractTest):
                 
         await self._expect_async_exception(create_table.exec, "calling create_table.exec twice", sqlite3.OperationalError)
         
-        self._assert( isinstance( await create_table.if_not_exists().exec(), SqliteDatabase), "calling with if not exists does not raise an error" )
+        await create_table.if_not_exists().exec() # shall not raise an exception
         

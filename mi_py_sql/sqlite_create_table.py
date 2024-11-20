@@ -1,4 +1,4 @@
-from typing import Any, Iterable, TYPE_CHECKING
+from typing import Any, Iterable, TYPE_CHECKING, Tuple
 
 # local
 if TYPE_CHECKING:
@@ -14,11 +14,7 @@ class SqliteCreateTable(CreateTable):
     def database(self) -> "SqliteDatabase":
         return super().database()
     
-    async def exec( self, args:Iterable[Any]=[] ) -> "SqliteDatabase":
-        await super().exec( args )
-        return self.database()
-
-    def to_sql(self) -> str:
+    def to_sql( self ) -> Tuple[str, Iterable[Any]]:
         """
         Generate the SQL for creating a table.
         """
@@ -47,7 +43,7 @@ class SqliteCreateTable(CreateTable):
         
         if_not_exists = " IF NOT EXISTS" if self._if_not_exists else ""
         columns_sql = ", ".join(columns)
-        return f"CREATE TABLE{if_not_exists} {self._name} ({columns_sql});"
+        return f"CREATE TABLE{if_not_exists} {self._name} ({columns_sql});", []
         
     @staticmethod
     def _format_value(value: Any) -> str:
