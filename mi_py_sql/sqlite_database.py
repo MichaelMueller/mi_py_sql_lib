@@ -47,7 +47,8 @@ class SqliteDatabase(Database):
     async def execute_write(self, query: str, args:Iterable[Any]):
         """Execute a write query asynchronously."""
         async with aiosqlite.connect( self.path() ) as db:
-            async with db.execute(query, args):
+            logging.info(f'Excuting write query "{query}"')
+            async with db.execute(query, args):                
                 return await db.commit()
     
     # async def connect(self) -> aiosqlite.Connection:
