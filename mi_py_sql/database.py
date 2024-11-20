@@ -7,6 +7,7 @@ if TYPE_CHECKING:
     from mi_py_sql.create_table import CreateTable
     from mi_py_sql.rename_table import RenameTable
     from mi_py_sql.drop_table import DropTable
+    from mi_py_sql.insert import Insert
 
 class Database:    
     
@@ -21,6 +22,9 @@ class Database:
     
     def drop_table(self, name:str) -> "DropTable":
         raise NotImplementedError()    
+    
+    def insert_into(self, name:str) -> "Insert":
+        return Insert(self)
     
     async def exec( self, q:"Query" ) -> Any:
         raise NotImplementedError()    

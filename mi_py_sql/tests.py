@@ -3,7 +3,7 @@ from typing import Callable, Dict, Any, Optional, List, get_origin, get_args
 # pip
 from mi_py_essentials import Test, AbstractTest
 # local
-from mi_py_sql.sqlite_drop_table_test import SqliteDropTableTest
+from mi_py_sql.insert_test import InsertTest
 
 class Tests(AbstractTest):
     def __init__(self) -> None:
@@ -14,7 +14,7 @@ class Tests(AbstractTest):
             handlers=[ logging.StreamHandler() ] )
                 
     def dependent_tests(self) -> list[Test]:
-        return [ SqliteDropTableTest() ]
+        return [ InsertTest() ]
     
     async def _exec(self) -> None:
         pass
