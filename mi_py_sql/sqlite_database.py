@@ -1,9 +1,12 @@
 # built-in imports
-from typing import Any, Union, Optional, TYPE_CHECKING
+from typing import Any, Union, Optional, TYPE_CHECKING, Iterable
 import asyncio, logging
 # pip
 import aiosqlite
 # local imports
+if TYPE_CHECKING:
+    from .query import Query
+from .select import Select
 from .database import Database
 from .sqlite_create_table import SqliteCreateTable
 from .sqlite_rename_table import SqliteRenameTable
@@ -28,16 +31,22 @@ class SqliteDatabase(Database):
     def drop_table(self, name:str) -> SqliteDropTable:
         return SqliteDropTable(self, name) 
     
-    async def execute(self, query: str, params: tuple = ()):
+    async def exec( self, q:Query, args:Iterable[Any] ) -> Any:
+        if isinstance( q, Select ):
+            return await self.execute( q.to_sql(), args )
+        else:
+            return await self.execute_write( q.to_sql(), args )
+    
+    async def execute(self, query: str, args:Iterable[Any]):
         """Execute a query asynchronously."""
         async with aiosqlite.connect( self.path() ) as db:
-            async with db.execute(query, params) as cursor:
+            async with db.execute(query, args) as cursor:
                 return await cursor.fetchall()
 
-    async def execute_write(self, query: str, params: tuple = ()):
+    async def execute_write(self, query: str, args:Iterable[Any]):
         """Execute a write query asynchronously."""
         async with aiosqlite.connect( self.path() ) as db:
-            async with db.execute(query, params):
+            async with db.execute(query, args):
                 return await db.commit()
     
     # async def connect(self) -> aiosqlite.Connection:

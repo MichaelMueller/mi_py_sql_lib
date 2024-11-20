@@ -14,13 +14,9 @@ class SqliteRenameTable(RenameTable):
     def database(self) -> "SqliteDatabase":
         return super().database()
     
-    async def exec(self) -> "SqliteDatabase":
-        """
-        Execute the generated SQL query using the database connection.
-        """
-        query = self.to_sql([])
-        await self.database().execute_write( query )
+    async def exec( self, args:Iterable[Any]=[] ) -> "SqliteDatabase":
+        await super().exec( args )
         return self.database()
 
-    def to_sql(self, _: Iterable[Any]) -> str:
+    def to_sql(self) -> str:
         return f'ALTER TABLE {self.name()} RENAME TO {self._new_name};'

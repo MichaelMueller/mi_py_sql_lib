@@ -27,7 +27,7 @@ class SqliteCreateTableTest(AbstractTest):
             .blob("image", 65000)
         
         target_sql = "CREATE TABLE users (id INTEGER AUTO INCREMENT PRIMARY KEY, name TEXT UNIQUE, age REAL DEFAULT 25.0, image BLOB);".lower().replace(" ", "")
-        sql = create_table.to_sql( [] )
+        sql = create_table.to_sql()
         self._print( sql )
         
         self._assert( sql.lower().replace(" ", "").startswith( target_sql ), "test table users could be created" )

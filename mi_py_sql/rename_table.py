@@ -3,7 +3,6 @@ from typing import Any, Union, Optional, TYPE_CHECKING, Iterable
 import inspect
 # local imports
 if TYPE_CHECKING:
-    from mi_py_sql import Database
     from mi_py_sql.database import Database
 from mi_py_sql import TableQuery
 

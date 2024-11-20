@@ -16,12 +16,6 @@ class CreateTable(TableQuery):
         self._columns = {}
         self._curr_name = None
         
-    async def exec( self ) -> Any:
-        raise NotImplementedError()    
-    
-    def to_sql( self, args:Iterable[Any] ) -> str:
-        raise NotImplementedError()
-                         
     def int_auto_increment_pk( self, name:str ) -> "CreateTable":
         self._curr_name = name
         self._columns[name] = { "type": int, "auto_increment": True, "primary_key": True }

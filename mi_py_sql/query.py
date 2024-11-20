@@ -1,4 +1,4 @@
-from typing import Tuple, Any, Iterable, TypedDict, TYPE_CHECKING
+from typing import Tuple, Any, Iterable, TypedDict, TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from mi_py_sql import Database
@@ -12,9 +12,9 @@ class Query:
     def database(self) -> "Database":
         return self._database 
         
-    async def exec( self ) -> Any:
-        raise NotImplementedError()    
+    async def exec( self, args:Iterable[Any] ) -> Any:
+        return await self.database().exec( self, args )
     
-    def to_sql( self, args:Iterable[Any] ) -> str:
+    def to_sql( self ) -> str:
         raise NotImplementedError()
     

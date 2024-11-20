@@ -14,12 +14,9 @@ class SqliteDropTable(DropTable):
     def database(self) -> "SqliteDatabase":
         return super().database()
     
-    async def exec(self) -> "SqliteDatabase":
-        """
-        Execute the generated SQL query using the database connection.
-        """
-        await self.database().execute_write( self.to_sql([]) )
+    async def exec( self, args:Iterable[Any]=[] ) -> "SqliteDatabase":
+        await super().exec( args )
         return self.database()
 
-    def to_sql(self, _: Iterable[Any]) -> str:
+    def to_sql(self) -> str:
         return f'DROP TABLE{" IF EXISTS" if self._if_exists else ""} {self.name()};'

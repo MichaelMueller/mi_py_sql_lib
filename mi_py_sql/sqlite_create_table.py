@@ -14,22 +14,20 @@ class SqliteCreateTable(CreateTable):
     def database(self) -> "SqliteDatabase":
         return super().database()
     
-    async def exec(self) -> "SqliteDatabase":
-        """
-        Execute the generated SQL query using the database connection.
-        """
-        query = self.to_sql([])
-        await self.database().execute_write( query )
+    async def exec( self, args:Iterable[Any]=[] ) -> "SqliteDatabase":
+        await super().exec( args )
         return self.database()
 
-    def to_sql(self, _: Iterable[Any]) -> str:
+    def to_sql(self) -> str:
         """
         Generate the SQL for creating a table.
         """
         columns = []
+        type_map = { int: "INTEGER", float: "REAL", str: "TEXT", bytes: "BLOB" }
+        
         for name, attributes in self._columns.items():
             col_def = [name]
-            col_type = self._map_type(attributes["type"])
+            col_type = type_map.get(attributes["type"], "TEXT")
             col_def.append(col_type)
             
             if attributes.get("auto_increment", False):
@@ -50,20 +48,7 @@ class SqliteCreateTable(CreateTable):
         if_not_exists = " IF NOT EXISTS" if self._if_not_exists else ""
         columns_sql = ", ".join(columns)
         return f"CREATE TABLE{if_not_exists} {self._name} ({columns_sql});"
-    
-    @staticmethod
-    def _map_type(py_type: type) -> str:
-        """
-        Map Python types to SQLite types.
-        """
-        type_map = {
-            int: "INTEGER",
-            float: "REAL",
-            str: "TEXT",
-            bytes: "BLOB",
-        }
-        return type_map.get(py_type, "TEXT")
-    
+        
     @staticmethod
     def _format_value(value: Any) -> str:
         """

@@ -16,8 +16,3 @@ class TableQuery(Query):
     def name(self) -> str:
         return self._name                   
         
-    async def exec( self ) -> Any:
-        raise NotImplementedError()    
-    
-    def to_sql( self, args:Iterable[Any] ) -> str:
-        raise NotImplementedError()
